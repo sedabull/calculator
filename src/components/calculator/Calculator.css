@@ -1,0 +1,30 @@
+.Calculator {
+    width: 530px;
+    margin-top: 15px;
+    border: 15px double rgb(80, 80, 80);
+    border-radius: 5px;
+    box-shadow: 10px 10px 5px lightgray;
+}
+
+.Calculator h1 {
+    margin: 0px;
+    padding: 10px 0px;
+    text-align: center;
+    font-size: 2.3em;
+    font-weight: 900;
+    text-shadow: 3px 3px 5px rgb(80, 80, 80);
+    border-bottom: 3px solid rgb(80, 80, 80);
+}
+
+.Calculator h2 {
+    font-size: 2em;
+}
+
+.Calculator h2, h3 {
+    margin: 0px;
+    padding: 5px;
+    text-align: right;
+    min-height: 37px;
+    border-bottom: 3px solid rgb(80, 80, 80);
+    overflow: hidden;
+}
