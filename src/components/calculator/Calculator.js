@@ -11,9 +11,69 @@ class Calculator extends Component {
             exp: '',
             upper: '',
             lower: '0',
-            resetNextInput: false
+            reset: false
         };//end state
+
+        this.zero = this.num.bind(this, '0');
+        this.one = this.num.bind(this, '1');
+        this.two = this.num.bind(this, '2');
+        this.three = this.num.bind(this, '3');
+        this.four = this.num.bind(this, '4');
+        this.five = this.num.bind(this, '5');
+        this.six = this.num.bind(this, '6');
+        this.seven = this.num.bind(this, '7');
+        this.eight = this.num.bind(this, '8');
+        this.nine = this.num.bind(this, '9');
     }//end constructor
+
+    num(n) {
+        this.setState(state => {
+            let lower = state.lower;
+            if(state.reset) {
+                this.clear();
+            }//end if
+            if(lower === '0' || lower === '-0') {
+                lower = lower.replace('0', '');
+            }//end if
+            return {
+                lower: lower + n,
+            }//end return changes
+        });//end setState
+    }//end number
+
+    decimal = event => {
+        this.setState(state => {
+            let lower = state.lower;
+            if(state.reset) {
+                this.clear();
+            }//end if
+            return {
+                lower: lower + (lower.includes('.') ? '' : '.'),
+                upper: lower.includes('.') ? 'WARNING: DECIMAL POINT ALREADY PRESENT!' : state.upper
+            }//end return changes
+        });//end setState
+    }//end decimal
+
+    negate = event => {
+        this.setState(state => {
+            let lower = state.lower;
+            if(state.reset) {
+                this.clear();
+            }//end if
+            return {
+                lower: lower.includes('-') ? lower.slice(1) : '-' + lower
+            }//end return changes
+        });//end setState
+    }//end negate
+
+    clear = event => {
+        this.setState({
+            exp: '',
+            upper: '',
+            lower: '0',
+            reset: false
+        });//end setState
+    }//end clear
 
     render() {
         return (
