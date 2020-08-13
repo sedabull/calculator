@@ -5,7 +5,6 @@ import React, {Component} from 'react';
 let _ops = {
     '*': function(a, b) {return Number(a) * Number(b);},
     '/': function(a, b) {return Number(a) / Number(b);},
-    '%': function(a, b) {return Number(a) % Number(b);},
     '+': function(a, b) {return Number(a) + Number(b);},
     '-': function(a, b) {return Number(a) - Number(b);}
 }//end _ops
@@ -22,29 +21,42 @@ class Calculator extends Component {
             reset: false
         };//end state
 
-        this.zero = this.num.bind(this, '0');
-        this.one = this.num.bind(this, '1');
-        this.two = this.num.bind(this, '2');
-        this.three = this.num.bind(this, '3');
-        this.four = this.num.bind(this, '4');
-        this.five = this.num.bind(this, '5');
-        this.six = this.num.bind(this, '6');
-        this.seven = this.num.bind(this, '7');
-        this.eight = this.num.bind(this, '8');
-        this.nine = this.num.bind(this, '9');
+        this.open = this.input.bind(this, '(');
+        this.close = this.input.bind(this, ')');
+        this.power = this.input.bind(this, '^');
+        this.add = this.input.bind(this, '+');
+        this.sub = this.input.bind(this, '-');
+        this.mul = this.input.bind(this, '*');
+        this.div = this.input.bind(this, '/');
+
+        this.zero = this.input.bind(this, '0');
+        this.one = this.input.bind(this, '1');
+        this.two = this.input.bind(this, '2');
+        this.three = this.input.bind(this, '3');
+        this.four = this.input.bind(this, '4');
+        this.five = this.input.bind(this, '5');
+        this.six = this.input.bind(this, '6');
+        this.seven = this.input.bind(this, '7');
+        this.eight = this.input.bind(this, '8');
+        this.nine = this.input.bind(this, '9');
     }//end constructor
 
-    num(n) {
+    input(char) {
         this.setState(state => {
             let lower = state.lower;
+            
             if(state.reset) {
                 this.clear();
             }//end if
+            
             if(lower === '0' || lower === '-0') {
-                lower = lower.replace('0', '');
+                if(!char.match(/\+|\-|\*|\//)) {
+                    lower = lower.replace('0', '');
+                }//end if
             }//end if
+            
             return {
-                lower: lower + n,
+                lower: lower + char,
             }//end return changes
         });//end setState
     }//end number
@@ -61,7 +73,7 @@ class Calculator extends Component {
             exp = exp.replace(subExp[0], Math.pow(nums[0], nums[1]).toString());
         }//end while
 
-        while(subExp = exp.match(/-?[\d|\.]+(\*|\/|\%)-?[\d|\.]+/)) {
+        while(subExp = exp.match(/-?[\d|\.]+(\*|\/)-?[\d|\.]+/)) {
             nums = subExp[0].split(subExp[1]);
             exp = exp.replace(subExp[0], _ops[subExp[1]](nums[0], nums[1]).toString());
         }//end while
@@ -77,9 +89,11 @@ class Calculator extends Component {
     decimal = event => {
         this.setState(state => {
             let lower = state.lower;
+            
             if(state.reset) {
                 this.clear();
             }//end if
+            
             return {
                 lower: lower + (lower.includes('.') ? '' : '.'),
                 upper: lower.includes('.') ? 'WARNING: DECIMAL POINT ALREADY PRESENT!' : state.upper
@@ -90,14 +104,33 @@ class Calculator extends Component {
     negate = event => {
         this.setState(state => {
             let lower = state.lower;
+            
             if(state.reset) {
                 this.clear();
             }//end if
+            
             return {
-                lower: lower.includes('-') ? lower.slice(1) : '-' + lower
+                lower: lower[0] === '-' ? lower.slice(2, -1) : `-(${lower})`
             }//end return changes
         });//end setState
     }//end negate
+
+    delete = event => {
+        this.setState(state => {
+            let lower = state.lower;
+            
+            if(state.reset) {
+                this.clear();
+            }//end if
+            
+            lower = lower.slice(0, -1);
+            if(lower === '-' || lower === '') {
+                lower = '0';
+            }//end if
+
+            return { lower: lower };
+        });//end setState
+    }//end delete
 
     clear = event => {
         this.setState({
@@ -135,7 +168,7 @@ class Calculator extends Component {
                     <Button coloring="dark" onClick={this.sub}>-</Button>
                     <Button coloring="dark" onClick={this.mul}>*</Button>
                     <Button coloring="dark" onClick={this.div}>/</Button>
-                    <Button coloring="dark" onClick={this.mod}>%</Button>
+                    <Button coloring="dark" onClick={this.delete}>⌫</Button>
                     <Button coloring="dark" onClick={this.clear} big={true}>C</Button>
                     <Button coloring="dark" onClick={this.equ} big={true}>=</Button>
                 </div>
