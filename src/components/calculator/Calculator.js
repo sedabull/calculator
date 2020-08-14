@@ -15,10 +15,8 @@ class Calculator extends Component {
         super(props);
 
         this.state = {
-            exp: '',
             upper: '',
             lower: '0',
-            reset: false
         };//end state
 
         this.open = this.input.bind(this, '(');
@@ -44,10 +42,6 @@ class Calculator extends Component {
     input(char) {
         this.setState(state => {
             let lower = state.lower;
-            
-            if(state.reset) {
-                this.clear();
-            }//end if
             
             if(lower === '0' || lower === '-0') {
                 if(!char.match(/\+|\-|\*|\//)) {
@@ -86,13 +80,26 @@ class Calculator extends Component {
         return exp;
     }//end eval
 
+    equ = event => {
+        this.setState(state => {
+            let upper = state.lower + '=';
+            let lower = this.eval(state.lower);
+
+            if(Number.isNaN(Number(lower))) {
+                lower = state.lower;
+                upper = 'ERROR: INVALID EXPRESSION';
+            }//end if
+
+            return {
+                lower: lower,
+                upper: upper
+            };//end return changes
+        });//end setState
+    }//end equ
+
     decimal = event => {
         this.setState(state => {
             let lower = state.lower;
-            
-            if(state.reset) {
-                this.clear();
-            }//end if
             
             return {
                 lower: lower + (lower.includes('.') ? '' : '.'),
@@ -105,10 +112,6 @@ class Calculator extends Component {
         this.setState(state => {
             let lower = state.lower;
             
-            if(state.reset) {
-                this.clear();
-            }//end if
-            
             return {
                 lower: lower[0] === '-' ? lower.slice(2, -1) : `-(${lower})`
             }//end return changes
@@ -118,10 +121,6 @@ class Calculator extends Component {
     delete = event => {
         this.setState(state => {
             let lower = state.lower;
-            
-            if(state.reset) {
-                this.clear();
-            }//end if
             
             lower = lower.slice(0, -1);
             if(lower === '-' || lower === '') {
@@ -134,10 +133,8 @@ class Calculator extends Component {
 
     clear = event => {
         this.setState({
-            exp: '',
             upper: '',
-            lower: '0',
-            reset: false
+            lower: '0'
         });//end setState
     }//end clear
 
