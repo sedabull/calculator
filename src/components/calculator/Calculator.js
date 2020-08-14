@@ -58,21 +58,21 @@ class Calculator extends Component {
     eval(exp) {
         let nums, subExp;
         
-        while(subExp = exp.match(/\(.*\)/)) {
+        while(subExp = exp.match(/\([^\(\)]*\)/)) {
             exp = exp.replace(subExp[0], this.eval(subExp[0].slice(1, -1)));
         }//end while
 
-        while(subExp = exp.match(/-?[\d|\.]+\^-?[\d|\.]+/)) {
+        while(subExp = exp.match(/-?[\d\.]+\^-?[\d\.]+/)) {
             nums = subExp[0].split('^');
             exp = exp.replace(subExp[0], Math.pow(nums[0], nums[1]).toString());
         }//end while
 
-        while(subExp = exp.match(/-?[\d|\.]+(\*|\/)-?[\d|\.]+/)) {
+        while(subExp = exp.match(/-?[\d\.]+(\*|\/)-?[\d\.]+/)) {
             nums = subExp[0].split(subExp[1]);
             exp = exp.replace(subExp[0], _ops[subExp[1]](nums[0], nums[1]).toString());
         }//end while
         
-        while(subExp = exp.match(/-?[\d|\.]+(\+|\-)-?[\d|\.]+/)) {
+        while(subExp = exp.match(/-?[\d\.]+(\+|\-)-?[\d\.]+/)) {
             nums = subExp[0].split(subExp[1]);
             exp = exp.replace(subExp[0], _ops[subExp[1]](nums[0], nums[1]).toString());
         }//end while
