@@ -17,6 +17,8 @@ class Calculator extends Component {
         this.state = {
             upper: '',
             lower: '0',
+            lock: false,
+            reset: false
         };//end state
 
         this.open = this.input.bind(this, '(');
@@ -41,40 +43,88 @@ class Calculator extends Component {
 
     input(char) {
         this.setState(state => {
-            let lower = state.lower;
+            if(state.lock) return {};
             
-            if(lower === '0' || lower === '-0') {
-                if(!char.match(/\+|\-|\*|\//)) {
+            let op = /[\^\*\/\+\-]$/;
+            let upper = state.upper;
+            let lower = state.lower;
+            let reset = state.reset;
+            
+            if(reset) {
+                if(char.match(/\d/)) {
+                    upper = '';
+                    lower = '0';
+                }//end if
+                reset = false;
+            }//end if
+            
+            if(lower === '0') {
+                if(!char.match(op) && !char.match(/\(/)) {
                     lower = lower.replace('0', '');
                 }//end if
             }//end if
+
+            if(lower.match(op) && (char.match(op) || char.match(/\)/))) {
+                lower = lower.slice(0, -1);
+            }//end if
+
+            if(lower.match(/\.$/) && (char.match(op) || char.match(/\)/))) {
+                lower += '0';
+            }//end if
+
+            if(lower.match(/[\d\)]$/) && char.match(/\(/)) {
+                lower += '*';
+            }//end if
             
             return {
-                lower: lower + char,
+                reset: reset,
+                upper: upper,
+                lower: lower + char
             }//end return changes
         });//end setState
     }//end number
 
     eval(exp) {
-        let nums, subExp;
-        
-        while(subExp = exp.match(/\([^\(\)]*\)/)) {
-            exp = exp.replace(subExp[0], this.eval(subExp[0].slice(1, -1)));
+        let please = /\([^\(\)]*\)/;
+        let excuse = /-?[\d\.]+\^-?[\d\.]+/;
+        let myDear = /-?[\d\.]+(\*|\/)-?[\d\.]+/;
+        let auntSally = /-?[\d\.]+(\+|\-)-?[\d\.]+/;
+
+        while(exp.match(please)) {
+            exp = exp.replace(please, match => (
+                this.eval(match.slice(1, -1))
+            ));//end please
         }//end while
 
-        while(subExp = exp.match(/-?[\d\.]+\^-?[\d\.]+/)) {
-            nums = subExp[0].split('^');
-            exp = exp.replace(subExp[0], Math.pow(nums[0], nums[1]).toString());
+        while(exp.match(excuse)) {
+            exp = exp.replace(excuse, match => {
+                let base = Number(match.split('^')[0]);
+                let power = Number(match.split('^')[1]);
+                return Math.pow(base, power).toString();
+            });//end excuse
         }//end while
 
-        while(subExp = exp.match(/-?[\d\.]+(\*|\/)-?[\d\.]+/)) {
-            nums = subExp[0].split(subExp[1]);
-            exp = exp.replace(subExp[0], _ops[subExp[1]](nums[0], nums[1]).toString());
+        while(exp.match(myDear)) {
+            exp = exp.replace(myDear, (match, op) => {
+                let left = match.split(op)[0];
+                let right = match.split(op)[1];
+                return _ops[op](left, right).toString();
+            });//end myDear
         }//end while
         
-        while(subExp = exp.match(/-?[\d\.]+(\+|\-)-?[\d\.]+/)) {
-            nums = subExp[0].split(subExp[1]);
-            exp = exp.replace(subExp[0], _ops[subExp[1]](nums[0], nums[1]).toString());
+        exp = exp.replace(/--/g, '+');
+        while(exp.match(auntSally)) {
+            exp = exp.replace(auntSally, (match, op) => {
+                let left = match.split(op)[0];
+                let right = match.split(op)[1];
+
+                if(op === '-') {
+                    left = match.slice(0, match.lastIndexOf('-'));
+                    right = match.slice(match.lastIndexOf('-') + 1);
+                }//end if
+
+                return _ops[op](left, right).toString();
+            });//end auntSally
         }//end while
 
         return exp;
@@ -82,47 +132,106 @@ class Calculator extends Component {
 
     equ = event => {
         this.setState(state => {
-            let upper = state.lower + '=';
-            let lower = this.eval(state.lower);
+            if(state.lock) return {};
 
-            if(Number.isNaN(Number(lower))) {
+            let lock = state.lock;
+            let upper = state.lower + '=';
+            let lower = Number(this.eval(state.lower));
+
+            if(Number.isNaN(lower)) {
+                lock = true;
                 lower = state.lower;
-                upper = 'ERROR: INVALID EXPRESSION';
+                upper = 'ERROR: INVALID EXPRESSION!';
+                setTimeout(() => {
+                    this.setState({ upper: state.upper, lock: false });
+                }, 2000);
             }//end if
 
             return {
-                lower: lower,
-                upper: upper
+                lock: lock,
+                reset: true,
+                upper: upper,
+                lower: lower.toString()
             };//end return changes
         });//end setState
     }//end equ
 
     decimal = event => {
         this.setState(state => {
+            if(state.lock) return {};
+
+            let lock = state.lock;
+            let reset = state.reset;
             let lower = state.lower;
+            let upper = state.upper;
+
+            if(reset) {
+                upper = '';
+                lower = '0';
+                reset = false;
+            }//end if
+            
+            let current = lower.match(/-?[\d\.]+$/);
+            let error = current && current[0].includes('.') ? 'WARNING: DECIMAL POINT ALREADY PRESENT!' : '';
+
+            if(error) {
+                lock = true;
+                setTimeout(() => {
+                    this.setState({ upper: upper, lock: false });
+                }, 2000);//end setTimeout
+            }//end if
             
             return {
-                lower: lower + (lower.includes('.') ? '' : '.'),
-                upper: lower.includes('.') ? 'WARNING: DECIMAL POINT ALREADY PRESENT!' : state.upper
+                lock: lock,
+                reset: reset,
+                upper: error || upper,
+                lower: lower + (error ? '' : '.')
             }//end return changes
         });//end setState
     }//end decimal
 
     negate = event => {
         this.setState(state => {
+            if(state.lock) return {};
+
             let lower = state.lower;
+            let unnegated = /-?[\d\.]+$/;
+            let negated = /-\(-?[\d\.]+\)$/;
+
+            if(lower.match(unnegated)) {
+                lower = lower.replace(unnegated, match => `-(${match})`);
+            } else if(lower.match(negated)) {
+                lower = lower.replace(negated, match => match.slice(2, -1));
+            }//end else if
             
-            return {
-                lower: lower[0] === '-' ? lower.slice(2, -1) : `-(${lower})`
-            }//end return changes
+            return { lower: lower };
         });//end setState
     }//end negate
 
+    flip = event => {
+        this.setState(state => {
+            if(state.lock) return {};
+
+            let lower = state.lower;
+            let unflipped = /[\d\.]+$/;
+            let flipped = /\(1\/-?[\d\.]+\)$/;
+
+            if(lower.match(unflipped)) {
+                lower = lower.replace(unflipped, match => `(1/${match})`);
+            } else if(lower.match(flipped)) {
+                lower = lower.replace(flipped, match => match.slice(3, -1));
+            }//end else if
+            
+            return { lower: lower };
+        });//end setState
+    }//end flip
+
     delete = event => {
         this.setState(state => {
-            let lower = state.lower;
+            if(state.lock) return {};
+
+            let lower = state.lower.slice(0, -1);
             
-            lower = lower.slice(0, -1);
             if(lower === '-' || lower === '') {
                 lower = '0';
             }//end if
@@ -132,9 +241,14 @@ class Calculator extends Component {
     }//end delete
 
     clear = event => {
-        this.setState({
-            upper: '',
-            lower: '0'
+        this.setState(state => {
+            if(state.lock) return {};
+            
+            return {
+                upper: '',
+                lower: '0',
+                reset: false
+            }//end return changes
         });//end setState
     }//end clear
 
@@ -160,7 +274,7 @@ class Calculator extends Component {
                     <Button coloring="light" onClick={this.six}>6</Button>
                     <Button coloring="light" onClick={this.three}>3</Button>
                     <Button coloring="dark" onClick={this.decimal}>.</Button>
-                    <Button coloring="dark" onClick={this.sqrt}>√</Button>
+                    <Button coloring="dark" onClick={this.flip}>1/x</Button>
                     <Button coloring="dark" onClick={this.add}>+</Button>
                     <Button coloring="dark" onClick={this.sub}>-</Button>
                     <Button coloring="dark" onClick={this.mul}>*</Button>
