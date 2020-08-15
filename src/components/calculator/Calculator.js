@@ -134,12 +134,14 @@ class Calculator extends Component {
         this.setState(state => {
             if(state.lock) return {};
 
+            let reset = true;
             let lock = state.lock;
             let upper = state.lower + '=';
             let lower = Number(this.eval(state.lower));
 
             if(Number.isNaN(lower)) {
                 lock = true;
+                reset = false;
                 lower = state.lower;
                 upper = 'ERROR: INVALID EXPRESSION!';
                 setTimeout(() => {
@@ -149,7 +151,7 @@ class Calculator extends Component {
 
             return {
                 lock: lock,
-                reset: true,
+                reset: reset,
                 upper: upper,
                 lower: lower.toString()
             };//end return changes
