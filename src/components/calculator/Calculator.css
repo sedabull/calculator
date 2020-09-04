@@ -1,14 +1,14 @@
 @font-face {
-    font-family: "Open 24 Display";
-    src: url(../../assets/fonts/Open\ 24\ Display\ St.ttf);
+    font-family: "Silverball";
+    src: url(../../assets/fonts/Silverball.ttf);
 }
 
 .Calculator {
     width: 530px;
     margin-top: 15px;
-    border: 15px double rgb(80, 80, 80);
+    border: 15px double var(--primary);
     border-radius: 5px;
-    box-shadow: 10px 10px 5px lightgray;
+    box-shadow: 10px 10px 5px var(--off-dark);
 }
 
 .Calculator h1 {
@@ -17,8 +17,7 @@
     text-align: center;
     font-size: 2.3em;
     font-weight: 900;
-    text-shadow: 3px 3px 5px rgb(80, 80, 80);
-    border-bottom: 3px solid rgb(80, 80, 80);
+    border-bottom: 3px solid var(--primary);
 }
 
 .Calculator h2 {
@@ -27,10 +26,10 @@
 
 .Calculator h2, h3 {
     margin: 0px;
-    padding: 5px 5px 10px 5px;
+    padding: 5px;
     text-align: right;
-    min-height: 40px;
-    font-family: "Open 24 Display";
-    border-bottom: 3px solid rgb(80, 80, 80);
+    min-height: 37px;
+    font-family: "Silverball";
+    border-bottom: 3px solid var(--primary);
     overflow: hidden;
 }

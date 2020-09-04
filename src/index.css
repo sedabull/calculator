@@ -1,3 +1,10 @@
+:root {
+    --primary: black;
+    --accent: rgb(240, 243, 64);
+    --off-dark: gray;
+    --off-light: whitesmoke;
+}
+
 * {
     box-sizing: border-box;
     font-family: 'Courier New', Courier, monospace;
@@ -6,5 +13,5 @@
 body {
     display: flex;
     justify-content: center;
-    background-color: whitesmoke;
+    background-color: var(--lightest);
 }

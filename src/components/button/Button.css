@@ -8,7 +8,7 @@
 .Button {
     width: 100px;
     height: 100px;
-    border: 3px outset darkgray;
+    border: 3px outset var(--off-dark);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -19,7 +19,7 @@
 .Button:hover {
     font-size: 2.5em;
     font-weight: 900;
-    border: 4px outset darkgray;
+    border: 4px outset var(--off-dark);
     cursor: pointer;
 }
 
@@ -28,11 +28,11 @@
 }
 
 .light {
-    color: rgb(80, 80, 80);
-    background-color: lightgray;
+    color: var(--primary);
+    background-color: var(--off-light);
 }
 
 .dark {
-    color: lightgray;
-    background-color: gray;
+    color: var(--accent);
+    background-color: var(--primary);
 }
