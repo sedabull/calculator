@@ -8,7 +8,7 @@
     margin-top: 15px;
     border: 15px double var(--primary);
     border-radius: 5px;
-    box-shadow: 10px 10px 5px var(--off-dark);
+    margin-bottom: 15px;
 }
 
 .Calculator h1 {
@@ -27,6 +27,7 @@
 .Calculator h2, h3 {
     margin: 0px;
     padding: 5px;
+    color: var(--primary);
     text-align: right;
     min-height: 37px;
     font-family: "Silverball";
